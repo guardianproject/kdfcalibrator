@@ -65,6 +65,7 @@ public class KDFIterationCalibratorTest extends AndroidTestCase {
 
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
+            fail("Security Exception");
         }
     }
 }
