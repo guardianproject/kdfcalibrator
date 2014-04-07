@@ -1,4 +1,7 @@
 #!/usr/bin/python
+"""
+Parses AppThwack logcat csv files for KDF iteration data
+"""
 
 import csv,sys,os
 
