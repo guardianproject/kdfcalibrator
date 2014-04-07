@@ -21,9 +21,28 @@ public class KDFIterationCalibratorTest extends AndroidTestCase {
     }
 
 
+    public void testSystemInformation() {
+        SystemInformation info = new SystemInformation();
+        String cpu = info.procCpuInfo();
+        String android = info.androidBuild();
+        String version = info.procVersion();
+
+        Log.d(TAG, "====================BEGIN-SYSINFO====================");
+        Log.d(TAG, "android");
+        Log.d(TAG, android);
+        Log.d(TAG, "====================");
+        Log.d(TAG, "cpu");
+        Log.d(TAG, cpu);
+        Log.d(TAG, "====================");
+        Log.d(TAG, "version");
+        Log.d(TAG, version);
+        Log.d(TAG, "====================END-SYSINFO====================");
+    }
+
+
     public void testKDFCalibration(){
         try {
-            SystemInformation info = new SystemInformation();
+
             KDFIterationCalibrator kdfc = new KDFIterationCalibrator();
             int method1 = kdfc.calibrateMethod1(1000);
             int method2 = kdfc.calibrateMethod2(1000);
@@ -33,6 +52,7 @@ public class KDFIterationCalibratorTest extends AndroidTestCase {
             double method1time = kdfc.timeSingleIteration(method1);
             double method2time = kdfc.timeSingleIteration(method2);
 
+            Log.d(TAG, "====================BEGIN-CALIB====================");
             Log.d(TAG, "method1 result: " + method1);
             Log.d(TAG, "method2 result: " + method2);
             Log.d(TAG, "64k      iters: " + recommended);
@@ -40,22 +60,9 @@ public class KDFIterationCalibratorTest extends AndroidTestCase {
             Log.d(TAG, "curr     iters: " + current);
             Log.d(TAG, "method1  iters: " + method1time);
             Log.d(TAG, "method2  iters: " + method2time);
+            Log.d(TAG, "====================END-CALIB====================");
 
-            String cpu = info.procCpuInfo();
-            String android = info.androidBuild();
-            String version = info.procVersion();
 
-            Log.d(TAG, "====================");
-            Log.d(TAG, "android");
-            Log.d(TAG, android);
-
-            Log.d(TAG, "====================");
-            Log.d(TAG, "cpu");
-            Log.d(TAG, cpu);
-
-            Log.d(TAG, "====================");
-            Log.d(TAG, "version");
-            Log.d(TAG, version);
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
