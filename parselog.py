@@ -9,25 +9,26 @@ def usage():
     print("%s <logcat file>" %(sys.argv[0]))
     sys.exit(1)
 
-if len(sys.argv) != 2:
+if len(sys.argv) == 1:
     usage()
-
-if not os.path.exists(sys.argv[1]):
-    usage()
-
-reader = csv.reader(open(sys.argv[1], 'rb'), delimiter=' ')
-
 version_block = ''
 calculations_block = ''
-for line in reader:
-    if len(line) < 5:
-        continue
+for arg in sys.argv[1:]:
+    if not os.path.exists(arg):
+        usage()
 
-    print line
-    if line[3] == "KDFIterationCalibratorTest-sysinfo":
-       version_block += " ".join(line[5:])
-    if line[3] == "KDFIterationCalibratorTest-calc":
-       calculations_block += " ".join(line[5:])
+    reader = csv.reader(open(arg, 'rb'), delimiter=' ')
+
+    for line in reader:
+        if len(line) < 5:
+            continue
+
+        if line[3] == "KDFIterationCalibratorTest-sysinfo":
+            version_block += line[4] + '\n'
+
+        if line[3] == "KDFIterationCalibratorTest-calc":
+            calculations_block += line[4] + '\n'
 
 print(version_block)
+print(calculations_block)
 
