@@ -37,13 +37,20 @@ public class KDFIterationCalibrator {
      * The number of iteration samples to perform during the calibration.
      */
     private int mNumberSamples = 30;
+    private SecretKeyFactory mFactory;
+    char[] mPassphrase = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
+    byte[] mSalt;
 
 
-    public KDFIterationCalibrator() {
+    public KDFIterationCalibrator() throws GeneralSecurityException {
+        mFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        mSalt = generateSalt(PBKDF2_SALT_LEN_BYTES);
     }
 
-    public KDFIterationCalibrator(int number_samples) {
+    public KDFIterationCalibrator(int number_samples) throws GeneralSecurityException {
         mNumberSamples = number_samples;
+        mFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        mSalt = generateSalt(PBKDF2_SALT_LEN_BYTES);
     }
 
 /**
@@ -85,13 +92,12 @@ method 1: from briar project
      * from: https://github.com/joeykrim/TextSecure/blob/41d28230dd74383ce1fdf984730733c900b39edf/src/org/thoughtcrime/securesms/crypto/MasterSecretUtil.java
      */
     public int calibrateMethod2(int targetMillis) throws GeneralSecurityException {
-        char[] passphrase = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
-        byte[] salt = generateSalt(PBKDF2_SALT_LEN_BYTES);
+
 
         int BASELINE_ITERATION_COUNT = 10000; //baseline starting iteration count
 
         long startTime = SystemClock.elapsedRealtime();
-        pbkdf2_jce(passphrase, salt, BASELINE_ITERATION_COUNT);
+        pbkdf2_jce(mPassphrase, mSalt, BASELINE_ITERATION_COUNT);
         long finishTime = SystemClock.elapsedRealtime();
         int scaledIterationTarget = (int)(((double)BASELINE_ITERATION_COUNT / (double)(finishTime - startTime)) * targetMillis);
 
@@ -101,10 +107,8 @@ method 1: from briar project
     }
 
     public double timeSingleIteration(int iter_count) throws GeneralSecurityException {
-        char[] passphrase = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
-        byte[] salt = generateSalt(PBKDF2_SALT_LEN_BYTES);
         long startTime = SystemClock.elapsedRealtime();
-        pbkdf2_jce(passphrase, salt, iter_count);
+        pbkdf2_jce(mPassphrase, mSalt, iter_count);
         long finishTime = SystemClock.elapsedRealtime();
         double elapsed = finishTime - startTime;
         Log.d(TAG, "timeSingleIteration " + iter_count + " in " + elapsed + "ms");
@@ -112,19 +116,14 @@ method 1: from briar project
     }
 
     private long sampleRunningTime(int iterations) throws GeneralSecurityException {
-        char[] password = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
-
-        byte[] salt = generateSalt(PBKDF2_SALT_LEN_BYTES);
-
         long start = System.nanoTime();
-        pbkdf2_jce(password, salt, iterations);
+        pbkdf2_jce(mPassphrase, mSalt, iterations);
 
         return System.nanoTime() - start;
     }
 
     public byte[] pbkdf2_jce(char[] password, byte[] salt, int iterations) throws GeneralSecurityException {
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        return factory.generateSecret(new PBEKeySpec(password, salt, iterations, PBKDF2_KEY_LEN_BITS)).getEncoded();
+        return mFactory.generateSecret(new PBEKeySpec(password, salt, iterations, PBKDF2_KEY_LEN_BITS)).getEncoded();
     }
 
     public byte[] pbkdf2_bouncy(char[] password, byte[] salt, int iterations) throws GeneralSecurityException {
