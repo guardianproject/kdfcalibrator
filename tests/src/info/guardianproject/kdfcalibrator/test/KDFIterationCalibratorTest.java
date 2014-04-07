@@ -1,8 +1,11 @@
 
-package info.guardianproject.kdfcalibrator;
+package info.guardianproject.kdfcalibrator.test;
 
 import android.test.AndroidTestCase;
 import android.util.Log;
+
+import info.guardianproject.kdfcalibrator.KDFIterationCalibrator;
+import info.guardianproject.kdfcalibrator.SystemInformation;
 
 import java.security.GeneralSecurityException;
 
@@ -10,8 +13,15 @@ public class KDFIterationCalibratorTest extends AndroidTestCase {
 
     public final static String TAG = "KDFIterationCalibratorTest";
 
+
     @Override
-    public void runTest() {
+    public void testAndroidTestCaseSetupProperly() {
+        // TODO Auto-generated method stub
+        super.testAndroidTestCaseSetupProperly();
+    }
+
+
+    public void testKDFCalibration(){
         try {
             SystemInformation info = new SystemInformation();
             KDFIterationCalibrator kdfc = new KDFIterationCalibrator();
